@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from "redux";
 import { loadDashcamClipsByPage } from "./ClipsActions";
 import { isEmpty } from "ramda/es";
+import moment from "moment";
 
 const styles = StyleSheet.create({
 	root: {
@@ -34,7 +35,7 @@ class ClipsList extends PureComponent {
 		super(props);
 
 		if (isEmpty(props.clipsList) && !props.isLoading) {
-			props.actions.loadDashcamClipsByPage();
+			props.actions.loadDashcamClipsByPage(0, 50, props.clipsFilter.fromDate, props.clipsFilter.toDate);
 		}
 	}
 
@@ -44,14 +45,19 @@ class ClipsList extends PureComponent {
 
 	getNextPage = () => {
 		if (!this.props.isLoading) {
-			this.props.actions.loadDashcamClipsByPage(this.props.clipsPageNo + 1);
+			this.props.actions.loadDashcamClipsByPage(
+				this.props.clipsPageNo + 1,
+				50,
+				this.props.clipsFilter.fromDate,
+				this.props.clipsFilter.toDate
+			);
 		}
 	};
 
 	renderClipPreviewInfo = ({ item }) => (
 		<List.Item
 			title={item.fileName}
-			description={item.time.format(DISPLAY_TIMESTAMP_FORMAT)}
+			description={moment(item.time).format(DISPLAY_TIMESTAMP_FORMAT)}
 			onPress={() => this.openVideoDetails(item)}
 			left={() => (
 				<Image
@@ -93,7 +99,8 @@ class ClipsList extends PureComponent {
 const mapStateToProps = (state) => ({
 	clipsList: state.clips.list,
 	clipsPageNo: state.clips.pageNo,
-	isLoading: state.clips.loading
+	isLoading: state.clips.loading,
+	clipsFilter: state.clips.filter
 });
 
 const mapDispatchToProps = dispatch => ({
