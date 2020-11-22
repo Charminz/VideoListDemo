@@ -3,8 +3,13 @@ import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Appbar } from "react-native-paper";
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { PRIMARY_COLOR, SECONDARY_COLOR } from "../util/constants";
+import ClipsList from "./ClipsList";
 
 const styles = StyleSheet.create({
+	root: {
+		width: "100%",
+		height: "100%"
+	},
 	appbar: {
 		backgroundColor: PRIMARY_COLOR,
 		paddingHorizontal: 0
@@ -19,7 +24,7 @@ const styles = StyleSheet.create({
 });
 
 const DashcamClips = ({ history }) => (
-	<View>
+	<View style={styles.root}>
 		<Appbar.Header style={styles.appbar}>
 			<TouchableOpacity
 				style={styles.appbarBtn}
@@ -35,6 +40,7 @@ const DashcamClips = ({ history }) => (
 				title="Dashcam Clips"
 			/>
 		</Appbar.Header>
+		<ClipsList />
 	</View>
 );
 
