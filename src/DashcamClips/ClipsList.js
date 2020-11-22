@@ -4,6 +4,8 @@ import { List } from 'react-native-paper';
 import { range } from 'ramda/es';
 import moment from 'moment';
 import { DISPLAY_TIMESTAMP_FORMAT } from "../util/constants";
+import { connect } from 'react-redux';
+import { bindActionCreators } from "redux";
 
 const styles = StyleSheet.create({
 	root: {
@@ -100,4 +102,14 @@ class ClipsList extends Component {
 	}
 }
 
-export default ClipsList;
+const mapStateToProps = (state) => ({
+	clipsList: state.clips.list
+});
+
+const mapDispatchToProps = dispatch => ({
+	actions: bindActionCreators({
+
+	}, dispatch)
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ClipsList);
