@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { StyleSheet, View, FlatList, Image, ActivityIndicator } from 'react-native';
 import { List } from 'react-native-paper';
-import { range } from 'ramda/es';
-import moment from 'moment';
 import { DISPLAY_TIMESTAMP_FORMAT } from "../util/constants";
 import { connect } from 'react-redux';
 import { bindActionCreators } from "redux";
+import { loadDashcamClipsByPage } from "./ClipsActions";
+import { isEmpty } from "ramda/es";
 
 const styles = StyleSheet.create({
 	root: {
@@ -29,35 +29,23 @@ const styles = StyleSheet.create({
 	}
 });
 
-class ClipsList extends Component {
+class ClipsList extends PureComponent {
 	constructor(props) {
 		super(props);
 
-		this.state = {
-			isLoading: false // TODO: take from redux
-		};
+		if (isEmpty(props.clipsList) && !props.isLoading) {
+			props.actions.loadDashcamClipsByPage();
+		}
 	}
-
-	getRandomDate = () => {
-		const start = moment("2019-06-10").valueOf(); // unix timestamp
-		const end = moment().valueOf(); // unix timestamp
-		return moment(start + Math.random() * (end - start));
-	};
-
-	mapDashcamVideos = () => {
-		return range(1, 1500).map(index => ({
-			videoId: index,
-			fileName: `Dashcam clip no. ${index}`,
-			time: this.getRandomDate()
-		}));
-	};
 
 	openVideoDetails = (videoData) => {
 		console.log("Opening video", videoData);
 	};
 
 	getNextPage = () => {
-		console.log('end reaching');
+		if (!this.props.isLoading) {
+			this.props.actions.loadDashcamClipsByPage(this.props.clipsPageNo + 1);
+		}
 	};
 
 	renderClipPreviewInfo = ({ item }) => (
@@ -88,14 +76,14 @@ class ClipsList extends Component {
 		return (
 			<View style={styles.root}>
 				<FlatList
-					data={this.mapDashcamVideos()}
+					data={this.props.clipsList}
 					keyExtractor={this.getListKey}
 					renderItem={this.renderClipPreviewInfo}
 					ItemSeparatorComponent={this.renderDivider}
 					initialNumToRender={10}
-					onEndReachedThreshold={5}
+					onEndReachedThreshold={1}
 					onEndReached={this.getNextPage}
-					ListFooterComponent={this.state.isLoading ? this.renderLoading() : null}
+					ListFooterComponent={this.props.isLoading ? this.renderLoading() : null}
 				/>
 			</View>
 		);
@@ -103,12 +91,14 @@ class ClipsList extends Component {
 }
 
 const mapStateToProps = (state) => ({
-	clipsList: state.clips.list
+	clipsList: state.clips.list,
+	clipsPageNo: state.clips.pageNo,
+	isLoading: state.clips.loading
 });
 
 const mapDispatchToProps = dispatch => ({
 	actions: bindActionCreators({
-
+		loadDashcamClipsByPage
 	}, dispatch)
 });
 
